@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { appointmentsApi, type Appointment } from '../api/client'
 
 const HOUR_START = 7
@@ -41,13 +41,103 @@ const STATUS_COLOR: Record<string, string> = {
   cancelled: 'bg-slate-100 border-slate-300 text-slate-400',
 }
 
+interface PopoverProps {
+  appointment: Appointment
+  onClose: () => void
+  onAction: (status: string) => void
+  loading: boolean
+}
+
+function AppointmentPopover({ appointment, onClose, onAction, loading }: PopoverProps) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        onClose()
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [onClose])
+
+  const start = new Date(appointment.starts_at)
+  const end = new Date(start.getTime() + appointment.duration_minutes * 60000)
+  const timeRange = `${start.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} – ${end.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`
+  const dateStr = start.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })
+
+  return (
+    <div
+      ref={ref}
+      className="absolute left-full ml-2 top-0 z-50 w-56 bg-white rounded-xl shadow-lg border border-slate-200 p-4"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Close */}
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 text-slate-400 hover:text-slate-600"
+      >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      {/* Patient */}
+      <p className="text-sm font-semibold text-slate-800 pr-5 leading-tight">
+        {appointment.patient?.name ?? '—'}
+      </p>
+      {appointment.patient?.phone && (
+        <p className="text-xs text-slate-500 mt-0.5">{appointment.patient.phone}</p>
+      )}
+
+      <div className="my-3 border-t border-slate-100" />
+
+      {/* Time */}
+      <div className="space-y-1 text-xs text-slate-600">
+        <p className="capitalize">{dateStr}</p>
+        <p>{timeRange} · {appointment.duration_minutes} min</p>
+      </div>
+
+      {/* Actions */}
+      {appointment.status === 'scheduled' && (
+        <div className="flex flex-col gap-1.5 mt-3">
+          <button
+            disabled={loading}
+            onClick={() => onAction('completed')}
+            className="w-full py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium transition disabled:opacity-50"
+          >
+            Marcar como completado
+          </button>
+          <button
+            disabled={loading}
+            onClick={() => onAction('cancelled')}
+            className="w-full py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium transition disabled:opacity-50"
+          >
+            Cancelar turno
+          </button>
+        </div>
+      )}
+
+      {appointment.status !== 'scheduled' && (
+        <p className={`mt-3 text-xs font-medium text-center py-1 rounded-lg ${
+          appointment.status === 'completed'
+            ? 'bg-green-50 text-green-700'
+            : 'bg-slate-100 text-slate-500'
+        }`}>
+          {appointment.status === 'completed' ? 'Completado' : 'Cancelado'}
+        </p>
+      )}
+    </div>
+  )
+}
+
 interface AppointmentBlockProps {
   appointment: Appointment
   onStatusChange: (id: number, status: string) => void
 }
 
 function AppointmentBlock({ appointment, onStatusChange }: AppointmentBlockProps) {
-  const [active, setActive] = useState(false)
+  const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const start = new Date(appointment.starts_at)
@@ -62,44 +152,31 @@ function AppointmentBlock({ appointment, onStatusChange }: AppointmentBlockProps
       onStatusChange(appointment.id, status)
     } finally {
       setLoading(false)
-      setActive(false)
+      setOpen(false)
     }
   }
 
   return (
     <div
-      className={`absolute left-1 right-1 rounded-md border-l-2 px-2 py-1 cursor-pointer select-none overflow-hidden transition-shadow ${STATUS_COLOR[appointment.status]} ${active ? 'shadow-md z-20' : 'z-10'}`}
+      className={`absolute left-1 right-1 rounded-md border-l-2 px-2 py-1 cursor-pointer select-none overflow-visible transition-shadow ${STATUS_COLOR[appointment.status]} ${open ? 'shadow-md z-30' : 'z-10 hover:z-20 hover:shadow-sm'}`}
       style={{ top, height }}
-      onClick={(e) => {
-        e.stopPropagation()
-        if (appointment.status === 'scheduled') setActive((v) => !v)
-      }}
+      onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
     >
       <p className="text-xs font-semibold truncate leading-tight">
         {appointment.patient?.name ?? '—'}
       </p>
-      <p className="text-xs opacity-70 leading-tight">
-        {new Date(appointment.starts_at).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+      <p className="text-xs opacity-70 leading-tight truncate">
+        {start.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
         {' · '}{appointment.duration_minutes} min
       </p>
 
-      {active && appointment.status === 'scheduled' && (
-        <div className="flex gap-1 mt-1">
-          <button
-            disabled={loading}
-            onClick={(e) => { e.stopPropagation(); handleAction('completed') }}
-            className="text-[10px] px-1.5 py-0.5 rounded bg-green-600 text-white disabled:opacity-50"
-          >
-            Completado
-          </button>
-          <button
-            disabled={loading}
-            onClick={(e) => { e.stopPropagation(); handleAction('cancelled') }}
-            className="text-[10px] px-1.5 py-0.5 rounded bg-slate-500 text-white disabled:opacity-50"
-          >
-            Cancelar
-          </button>
-        </div>
+      {open && (
+        <AppointmentPopover
+          appointment={appointment}
+          onClose={() => setOpen(false)}
+          onAction={handleAction}
+          loading={loading}
+        />
       )}
     </div>
   )
