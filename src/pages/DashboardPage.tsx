@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Layout from '../components/Layout'
+import NewAppointmentModal from '../components/NewAppointmentModal'
 import { appointmentsApi, type Appointment } from '../api/client'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -127,6 +128,7 @@ export default function DashboardPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
     appointmentsApi
@@ -147,6 +149,15 @@ export default function DashboardPage() {
     )
   }
 
+  function handleCreated(appointment: Appointment) {
+    setAppointments((prev) =>
+      [...prev, appointment].sort(
+        (a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()
+      )
+    )
+    setShowModal(false)
+  }
+
   const todayAppointments = appointments.filter((a) => isToday(a.starts_at))
   const upcomingAppointments = appointments.filter(
     (a) => !isToday(a.starts_at) && isUpcoming(a.starts_at)
@@ -155,8 +166,25 @@ export default function DashboardPage() {
 
   return (
     <Layout>
+      {showModal && (
+        <NewAppointmentModal
+          onClose={() => setShowModal(false)}
+          onCreated={handleCreated}
+        />
+      )}
       <div className="p-8 max-w-3xl">
-        <h1 className="text-xl font-semibold text-slate-800 mb-6">Turnos</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-xl font-semibold text-slate-800">Turnos</h1>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Nuevo turno
+          </button>
+        </div>
 
         {loading && (
           <p className="text-sm text-slate-400">Cargando turnos...</p>
