@@ -6,13 +6,15 @@ const DURATIONS = [30, 45, 60, 90]
 interface Props {
   onClose: () => void
   onCreated: (appointment: Appointment) => void
+  prefilledDate?: string
+  prefilledTime?: string
 }
 
-export default function NewAppointmentModal({ onClose, onCreated }: Props) {
+export default function NewAppointmentModal({ onClose, onCreated, prefilledDate, prefilledTime }: Props) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  const [date, setDate] = useState('')
-  const [time, setTime] = useState('')
+  const [date, setDate] = useState(prefilledDate ?? '')
+  const [time, setTime] = useState(prefilledTime ?? '')
   const [duration, setDuration] = useState(60)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
