@@ -56,21 +56,20 @@ export const authApi = {
     api.post<LoginResponse>('/auth/login', data).then((r) => r.data),
 }
 
-export interface CreateAppointmentRequest {
-  patient_name: string
-  patient_phone: string
-  starts_at: string
-  duration_minutes: number
-}
-
 export const appointmentsApi = {
   getAll: () => api.get<Appointment[]>('/appointments').then((r) => r.data),
-  create: (data: CreateAppointmentRequest) =>
-    api.post<Appointment>('/public/appointments', data).then((r) => r.data),
+  create: (data: { patient_id: number; starts_at: string; duration_minutes: number }) =>
+    api.post<Appointment>('/appointments', data).then((r) => r.data),
   update: (id: number, data: { status?: string; notes?: string }) =>
     api.put(`/appointments/${id}`, data).then((r) => r.data),
   cancel: (id: number) =>
     api.delete(`/appointments/${id}`).then((r) => r.data),
+}
+
+export const patientsApi = {
+  getAll: () => api.get<Patient[]>('/patients').then((r) => r.data),
+  create: (data: { name: string; phone: string; email: string; notes: string }) =>
+    api.post<Patient>('/patients', data).then((r) => r.data),
 }
 
 export default api

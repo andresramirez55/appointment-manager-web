@@ -12,6 +12,15 @@ const navItems = [
     ),
   },
   {
+    to: '/patients',
+    label: 'Pacientes',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-5.477-3.723M9 20H4v-2a4 4 0 015.477-3.723M15 7a4 4 0 11-8 0 4 4 0 018 0zm6 4a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
+  },
+  {
     to: '/availability',
     label: 'Disponibilidad',
     icon: (
