@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
+import { appointmentsApi } from '../api/client'
 import Layout from '../components/Layout'
 import WeekCalendar from '../components/WeekCalendar'
 import NewAppointmentModal from '../components/NewAppointmentModal'
-import { appointmentsApi, type Appointment } from '../api/client'
+import EditAppointmentModal from '../components/EditAppointmentModal'
+import { type Appointment } from '../api/client'
 
 export default function DashboardPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([])
@@ -11,6 +13,7 @@ export default function DashboardPage() {
   const [showModal, setShowModal] = useState(false)
   const [prefilledDate, setPrefilledDate] = useState<string | undefined>()
   const [prefilledTime, setPrefilledTime] = useState<string | undefined>()
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null)
 
   useEffect(() => {
     appointmentsApi
@@ -56,6 +59,17 @@ export default function DashboardPage() {
         />
       )}
 
+      {editingAppointment && (
+        <EditAppointmentModal
+          appointment={editingAppointment}
+          onClose={() => setEditingAppointment(null)}
+          onUpdated={(updated) => {
+            setAppointments((prev) => prev.map((a) => (a.id === updated.id ? updated : a)))
+            setEditingAppointment(null)
+          }}
+        />
+      )}
+
       <div className="p-8 flex flex-col" style={{ height: '100vh' }}>
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-semibold text-slate-800">Turnos</h1>
@@ -84,6 +98,7 @@ export default function DashboardPage() {
               appointments={appointments}
               onSlotClick={handleSlotClick}
               onStatusChange={handleStatusChange}
+              onEdit={setEditingAppointment}
             />
           </div>
         )}

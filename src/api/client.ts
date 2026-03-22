@@ -60,7 +60,7 @@ export const appointmentsApi = {
   getAll: () => api.get<Appointment[]>('/appointments').then((r) => r.data),
   create: (data: { patient_id: number; starts_at: string; duration_minutes: number }) =>
     api.post<Appointment>('/appointments', data).then((r) => r.data),
-  update: (id: number, data: { status?: string; notes?: string }) =>
+  update: (id: number, data: { status?: string; notes?: string; starts_at?: string; duration_minutes?: number }) =>
     api.put(`/appointments/${id}`, data).then((r) => r.data),
   cancel: (id: number) =>
     api.delete(`/appointments/${id}`).then((r) => r.data),

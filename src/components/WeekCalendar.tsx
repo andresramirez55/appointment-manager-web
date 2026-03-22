@@ -45,10 +45,11 @@ interface PopoverProps {
   appointment: Appointment
   onClose: () => void
   onAction: (status: string) => void
+  onEdit: () => void
   loading: boolean
 }
 
-function AppointmentPopover({ appointment, onClose, onAction, loading }: PopoverProps) {
+function AppointmentPopover({ appointment, onClose, onAction, onEdit, loading }: PopoverProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -103,6 +104,13 @@ function AppointmentPopover({ appointment, onClose, onAction, loading }: Popover
         <div className="flex flex-col gap-1.5 mt-3">
           <button
             disabled={loading}
+            onClick={onEdit}
+            className="w-full py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-medium transition disabled:opacity-50"
+          >
+            Reprogramar
+          </button>
+          <button
+            disabled={loading}
             onClick={() => onAction('completed')}
             className="w-full py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium transition disabled:opacity-50"
           >
@@ -134,9 +142,10 @@ function AppointmentPopover({ appointment, onClose, onAction, loading }: Popover
 interface AppointmentBlockProps {
   appointment: Appointment
   onStatusChange: (id: number, status: string) => void
+  onEdit: (appointment: Appointment) => void
 }
 
-function AppointmentBlock({ appointment, onStatusChange }: AppointmentBlockProps) {
+function AppointmentBlock({ appointment, onStatusChange, onEdit }: AppointmentBlockProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -175,6 +184,7 @@ function AppointmentBlock({ appointment, onStatusChange }: AppointmentBlockProps
           appointment={appointment}
           onClose={() => setOpen(false)}
           onAction={handleAction}
+          onEdit={() => { setOpen(false); onEdit(appointment) }}
           loading={loading}
         />
       )}
@@ -186,9 +196,10 @@ interface Props {
   appointments: Appointment[]
   onSlotClick: (date: string, time: string) => void
   onStatusChange: (id: number, status: string) => void
+  onEdit: (appointment: Appointment) => void
 }
 
-export default function WeekCalendar({ appointments, onSlotClick, onStatusChange }: Props) {
+export default function WeekCalendar({ appointments, onSlotClick, onStatusChange, onEdit }: Props) {
   const [weekStart, setWeekStart] = useState(() => getWeekStart(new Date()))
   const gridRef = useRef<HTMLDivElement>(null)
 
@@ -306,6 +317,7 @@ export default function WeekCalendar({ appointments, onSlotClick, onStatusChange
                       key={a.id}
                       appointment={a}
                       onStatusChange={onStatusChange}
+                      onEdit={onEdit}
                     />
                   ))}
                 </div>
