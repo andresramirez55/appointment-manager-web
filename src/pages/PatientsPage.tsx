@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import { patientsApi, type Patient } from '../api/client'
 
@@ -90,6 +91,7 @@ function NewPatientForm({ onCreated }: { onCreated: (p: Patient) => void }) {
 }
 
 export default function PatientsPage() {
+  const navigate = useNavigate()
   const [patients, setPatients] = useState<Patient[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -128,7 +130,7 @@ export default function PatientsPage() {
             )}
 
             {filtered.map((p) => (
-              <div key={p.id} className="bg-white rounded-xl border border-slate-200 px-4 py-3 flex items-start gap-3">
+              <div key={p.id} onClick={() => navigate(`/patients/${p.id}`)} className="bg-white rounded-xl border border-slate-200 px-4 py-3 flex items-start gap-3 cursor-pointer hover:border-indigo-200 hover:bg-indigo-50/30 transition">
                 <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-semibold shrink-0">
                   {p.name.charAt(0).toUpperCase()}
                 </div>

@@ -66,10 +66,27 @@ export const appointmentsApi = {
     api.delete(`/appointments/${id}`).then((r) => r.data),
 }
 
+export interface SessionNote {
+  id: number
+  appointment_id: number
+  content: string
+  created_at: string
+}
+
 export const patientsApi = {
   getAll: () => api.get<Patient[]>('/patients').then((r) => r.data),
+  getById: (id: number) => api.get<Patient>(`/patients/${id}`).then((r) => r.data),
   create: (data: { name: string; phone: string; email: string; notes: string }) =>
     api.post<Patient>('/patients', data).then((r) => r.data),
+  update: (id: number, data: { name: string; phone: string; email: string; notes: string }) =>
+    api.put<Patient>(`/patients/${id}`, data).then((r) => r.data),
+}
+
+export const notesApi = {
+  getByAppointment: (appointmentId: number) =>
+    api.get<SessionNote[]>(`/notes?appointment_id=${appointmentId}`).then((r) => r.data),
+  create: (data: { appointment_id: number; content: string }) =>
+    api.post<SessionNote>('/notes', data).then((r) => r.data),
 }
 
 export default api
