@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { appointmentsApi, type Appointment } from '../api/client'
+import { appointmentsApi, type Appointment, type Block } from '../api/client'
 
 const HOUR_START = 7
 const HOUR_END = 21
@@ -222,22 +222,77 @@ function AppointmentBlock({ appointment, onStatusChange, onEdit, mobile }: Appoi
   )
 }
 
+// ─── Block overlay ────────────────────────────────────────────────────────────
+
+function BlockOverlay({ block, onDelete }: { block: Block; onDelete: (id: number) => void }) {
+  const [showConfirm, setShowConfirm] = useState(false)
+
+  const start = new Date(block.starts_at)
+  const end = new Date(block.ends_at)
+  const startMinutes = (start.getHours() - HOUR_START) * 60 + start.getMinutes()
+  const endMinutes = (end.getHours() - HOUR_START) * 60 + end.getMinutes()
+  const top = (startMinutes / 60) * HOUR_HEIGHT
+  const height = Math.max(((endMinutes - startMinutes) / 60) * HOUR_HEIGHT, 24)
+
+  const timeRange = `${start.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}–${end.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`
+
+  if (showConfirm) {
+    return (
+      <div
+        className="absolute left-0 right-0 z-20 bg-white rounded-md shadow-lg border border-slate-200 p-2"
+        style={{ top, minHeight: height }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="text-xs text-slate-600 mb-2 font-medium">¿Eliminar bloqueo?</p>
+        <div className="flex gap-1">
+          <button onClick={() => onDelete(block.id)}
+            className="flex-1 py-1 rounded bg-red-500 hover:bg-red-600 text-white text-xs font-medium">Sí</button>
+          <button onClick={() => setShowConfirm(false)}
+            className="flex-1 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs">No</button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className="absolute left-0 right-0 bg-slate-200/80 border-l-2 border-slate-400 px-2 py-0.5 select-none overflow-hidden cursor-pointer group"
+      style={{ top, height, zIndex: 5 }}
+      onClick={(e) => { e.stopPropagation(); setShowConfirm(true) }}
+    >
+      <div className="flex items-start justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-slate-500 truncate leading-tight">
+            {block.reason || 'Bloqueado'}
+          </p>
+          <p className="text-xs text-slate-400 truncate leading-tight">{timeRange}</p>
+        </div>
+        <span className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 text-xs ml-1 shrink-0">✕</span>
+      </div>
+    </div>
+  )
+}
+
 // ─── Time grid compartida ────────────────────────────────────────────────────
 
 function TimeGrid({
   days,
   appointments,
+  blocks,
   onSlotClick,
   onStatusChange,
   onEdit,
+  onBlockDelete,
   mobile,
   gridRef,
 }: {
   days: Date[]
   appointments: Appointment[]
+  blocks: Block[]
   onSlotClick: (date: string, time: string) => void
   onStatusChange: (id: number, status: string) => void
   onEdit: (appointment: Appointment) => void
+  onBlockDelete: (id: number) => void
   mobile?: boolean
   gridRef: React.RefObject<HTMLDivElement>
 }) {
@@ -297,6 +352,7 @@ function TimeGrid({
           {/* Day columns */}
           {days.map((day, i) => {
             const dayAppts = appointments.filter((a) => isSameDay(new Date(a.starts_at), day))
+            const dayBlocks = blocks.filter((b) => isSameDay(new Date(b.starts_at), day))
             return (
               <div key={i}
                 className="flex-1 border-l border-slate-200 relative cursor-pointer"
@@ -306,6 +362,9 @@ function TimeGrid({
                 {HOURS.map((h) => (
                   <div key={h} className="absolute left-0 right-0 border-t border-slate-100"
                     style={{ top: (h - HOUR_START) * HOUR_HEIGHT }} />
+                ))}
+                {dayBlocks.map((b) => (
+                  <BlockOverlay key={b.id} block={b} onDelete={onBlockDelete} />
                 ))}
                 {dayAppts.map((a) => (
                   <AppointmentBlock key={a.id} appointment={a}
@@ -324,12 +383,14 @@ function TimeGrid({
 
 interface Props {
   appointments: Appointment[]
+  blocks: Block[]
   onSlotClick: (date: string, time: string) => void
   onStatusChange: (id: number, status: string) => void
   onEdit: (appointment: Appointment) => void
+  onBlockDelete: (id: number) => void
 }
 
-export default function WeekCalendar({ appointments, onSlotClick, onStatusChange, onEdit }: Props) {
+export default function WeekCalendar({ appointments, blocks, onSlotClick, onStatusChange, onEdit, onBlockDelete }: Props) {
   const isMobile = useIsMobile()
   const gridRef = useRef<HTMLDivElement>(null)
 
@@ -378,9 +439,11 @@ export default function WeekCalendar({ appointments, onSlotClick, onStatusChange
         <TimeGrid
           days={[currentDay]}
           appointments={appointments}
+          blocks={blocks}
           onSlotClick={onSlotClick}
           onStatusChange={onStatusChange}
           onEdit={onEdit}
+          onBlockDelete={onBlockDelete}
           mobile
           gridRef={gridRef}
         />
@@ -416,9 +479,11 @@ export default function WeekCalendar({ appointments, onSlotClick, onStatusChange
       <TimeGrid
         days={weekDays}
         appointments={appointments}
+        blocks={blocks}
         onSlotClick={onSlotClick}
         onStatusChange={onStatusChange}
         onEdit={onEdit}
+        onBlockDelete={onBlockDelete}
         gridRef={gridRef}
       />
     </div>

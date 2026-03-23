@@ -96,6 +96,22 @@ export const patientsApi = {
     api.put<Patient>(`/patients/${id}`, data).then((r) => r.data),
 }
 
+export interface Block {
+  id: number
+  professional_id: number
+  starts_at: string
+  ends_at: string
+  reason: string
+  created_at: string
+}
+
+export const blocksApi = {
+  getAll: () => api.get<Block[]>('/blocks').then((r) => r.data),
+  create: (data: { starts_at: string; ends_at: string; reason: string }) =>
+    api.post<Block>('/blocks', data).then((r) => r.data),
+  delete: (id: number) => api.delete(`/blocks/${id}`).then((r) => r.data),
+}
+
 export const notesApi = {
   getByAppointment: (appointmentId: number) =>
     api.get<SessionNote[]>(`/notes?appointment_id=${appointmentId}`).then((r) => r.data),
