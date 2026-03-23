@@ -63,9 +63,19 @@ export interface Appointment {
   created_at: string
 }
 
+export interface RegisterRequest {
+  email: string
+  password: string
+  name: string
+  phone: string
+  specialty: string
+}
+
 export const authApi = {
   login: (data: LoginRequest) =>
     api.post<LoginResponse>('/auth/login', data).then((r) => r.data),
+  register: (data: RegisterRequest) =>
+    api.post<LoginResponse>('/auth/register', data).then((r) => r.data),
 }
 
 export const appointmentsApi = {
