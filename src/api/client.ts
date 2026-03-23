@@ -60,6 +60,8 @@ export const appointmentsApi = {
   getAll: () => api.get<Appointment[]>('/appointments').then((r) => r.data),
   create: (data: { patient_id: number; starts_at: string; duration_minutes: number }) =>
     api.post<Appointment>('/appointments', data).then((r) => r.data),
+  createRecurring: (data: { patient_id: number; starts_at: string; duration_minutes: number; frequency_weeks: number; occurrences: number }) =>
+    api.post<Appointment[]>('/appointments/recurring', data).then((r) => r.data),
   update: (id: number, data: { status?: string; notes?: string; starts_at?: string; duration_minutes?: number }) =>
     api.put(`/appointments/${id}`, data).then((r) => r.data),
   cancel: (id: number) =>

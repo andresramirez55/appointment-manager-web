@@ -29,8 +29,9 @@ export default function DashboardPage() {
     )
   }
 
-  function handleCreated(appointment: Appointment) {
-    setAppointments((prev) => [...prev, appointment])
+  function handleCreated(result: Appointment | Appointment[]) {
+    const newOnes = Array.isArray(result) ? result : [result]
+    setAppointments((prev) => [...prev, ...newOnes])
     setShowModal(false)
     setPrefilledDate(undefined)
     setPrefilledTime(undefined)
