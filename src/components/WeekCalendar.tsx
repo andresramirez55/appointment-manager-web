@@ -41,11 +41,24 @@ function useIsMobile() {
   return isMobile
 }
 
-const STATUS_COLOR: Record<string, string> = {
-  scheduled: 'bg-indigo-100 border-indigo-400 text-indigo-800',
-  completed: 'bg-green-100 border-green-400 text-green-800',
-  cancelled: 'bg-slate-100 border-slate-300 text-slate-400',
+const PATIENT_COLORS = [
+  'bg-indigo-100 border-indigo-400 text-indigo-800',
+  'bg-purple-100 border-purple-400 text-purple-800',
+  'bg-pink-100 border-pink-400 text-pink-800',
+  'bg-orange-100 border-orange-400 text-orange-800',
+  'bg-teal-100 border-teal-400 text-teal-800',
+  'bg-rose-100 border-rose-400 text-rose-800',
+  'bg-amber-100 border-amber-400 text-amber-800',
+  'bg-cyan-100 border-cyan-400 text-cyan-800',
+  'bg-lime-100 border-lime-400 text-lime-800',
+  'bg-violet-100 border-violet-400 text-violet-800',
+]
+
+function getPatientColor(patientId: number) {
+  return PATIENT_COLORS[patientId % PATIENT_COLORS.length]
 }
+
+const CANCELLED_COLOR = 'bg-slate-100 border-slate-300 text-slate-400'
 
 interface PopoverProps {
   appointment: Appointment
@@ -197,7 +210,7 @@ function AppointmentBlock({ appointment, onStatusChange, onEdit, mobile }: Appoi
   return (
     <>
       <div
-        className={`absolute left-1 right-1 rounded-md border-l-2 px-2 py-1 cursor-pointer select-none overflow-hidden transition-shadow ${STATUS_COLOR[appointment.status]} ${open ? 'shadow-md z-30' : 'z-10'}`}
+        className={`absolute left-1 right-1 rounded-md border-l-2 px-2 py-1 cursor-pointer select-none overflow-hidden transition-shadow ${appointment.status === 'cancelled' ? CANCELLED_COLOR : getPatientColor(appointment.patient_id)} ${open ? 'shadow-md z-30' : 'z-10'}`}
         style={{ top, height }}
         onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
       >
@@ -205,6 +218,7 @@ function AppointmentBlock({ appointment, onStatusChange, onEdit, mobile }: Appoi
         <p className="text-xs opacity-70 leading-tight truncate">
           {start.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
           {' · '}{appointment.duration_minutes} min
+          {appointment.status === 'completed' && ' · ✓'}
         </p>
       </div>
 

@@ -5,6 +5,7 @@ import WeekCalendar from '../components/WeekCalendar'
 import NewAppointmentModal from '../components/NewAppointmentModal'
 import EditAppointmentModal from '../components/EditAppointmentModal'
 import BlockModal from '../components/BlockModal'
+import TodayPanel from '../components/TodayPanel'
 import { type Appointment, type Block } from '../api/client'
 
 export default function DashboardPage() {
@@ -164,15 +165,20 @@ export default function DashboardPage() {
         )}
 
         {!loading && !error && (
-          <div className="flex-1">
-            <WeekCalendar
-              appointments={appointments}
-              blocks={blocks}
-              onSlotClick={handleSlotClick}
-              onStatusChange={handleStatusChange}
-              onEdit={setEditingAppointment}
-              onBlockDelete={handleBlockDelete}
-            />
+          <div className="flex-1 flex gap-4 min-h-0">
+            <div className="flex-1 min-w-0">
+              <WeekCalendar
+                appointments={appointments}
+                blocks={blocks}
+                onSlotClick={handleSlotClick}
+                onStatusChange={handleStatusChange}
+                onEdit={setEditingAppointment}
+                onBlockDelete={handleBlockDelete}
+              />
+            </div>
+            <div className="hidden md:flex flex-col" style={{ height: 'calc(100vh - 140px)' }}>
+              <TodayPanel appointments={appointments} onStatusChange={handleStatusChange} />
+            </div>
           </div>
         )}
       </div>
