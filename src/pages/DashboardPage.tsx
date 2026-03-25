@@ -6,6 +6,7 @@ import NewAppointmentModal from '../components/NewAppointmentModal'
 import EditAppointmentModal from '../components/EditAppointmentModal'
 import BlockModal from '../components/BlockModal'
 import TodayPanel from '../components/TodayPanel'
+import StatsBar from '../components/StatsBar'
 import { type Appointment, type Block } from '../api/client'
 
 export default function DashboardPage() {
@@ -165,6 +166,8 @@ export default function DashboardPage() {
         )}
 
         {!loading && !error && (
+          <>
+          <StatsBar appointments={appointments} />
           <div className="flex-1 flex gap-4 min-h-0">
             <div className="flex-1 min-w-0">
               <WeekCalendar
@@ -180,6 +183,7 @@ export default function DashboardPage() {
               <TodayPanel appointments={appointments} onStatusChange={handleStatusChange} />
             </div>
           </div>
+          </>
         )}
       </div>
     </Layout>
