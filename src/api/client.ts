@@ -128,6 +128,36 @@ export const blocksApi = {
   delete: (id: number) => api.delete(`/blocks/${id}`).then((r) => r.data),
 }
 
+export interface AvailabilitySlot {
+  id: number
+  day_of_week: number
+  start_time: string
+  end_time: string
+  slot_duration_minutes: number
+}
+
+export interface TimeSlot {
+  starts_at: string
+  ends_at: string
+  available: boolean
+}
+
+export const availabilityApi = {
+  getAll: () => api.get<AvailabilitySlot[]>('/availability').then((r) => r.data),
+  create: (data: { day_of_week: number; start_time: string; end_time: string; slot_duration_minutes: number }) =>
+    api.post<AvailabilitySlot>('/availability', data).then((r) => r.data),
+  delete: (id: number) => api.delete(`/availability/${id}`).then((r) => r.data),
+}
+
+export const publicApi = {
+  getProfessional: (id: number) =>
+    axios.get<{ id: number; name: string; specialty: string }>(`${import.meta.env.VITE_API_BASE_URL ?? '/api'}/public/professional/${id}`).then((r) => r.data),
+  getSlots: (professionalId: number, date: string) =>
+    axios.get<TimeSlot[]>(`${import.meta.env.VITE_API_BASE_URL ?? '/api'}/public/slots?professional_id=${professionalId}&date=${date}`).then((r) => r.data),
+  createAppointment: (data: { professional_id: number; patient_name: string; patient_phone: string; starts_at: string; duration_minutes: number }) =>
+    axios.post(`${import.meta.env.VITE_API_BASE_URL ?? '/api'}/public/appointments`, data).then((r) => r.data),
+}
+
 export const notesApi = {
   getByAppointment: (appointmentId: number) =>
     api.get<SessionNote[]>(`/notes?appointment_id=${appointmentId}`).then((r) => r.data),
