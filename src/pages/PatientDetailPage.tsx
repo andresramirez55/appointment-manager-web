@@ -150,7 +150,7 @@ export default function PatientDetailPage() {
     e.preventDefault()
     setSaving(true)
     try {
-      const updated = await patientsApi.update(patientId, form)
+      const updated = await patientsApi.update(patientId, { ...form, phone: form.phone.replace(/^\+/, '').replace(/\s/g, '') })
       setPatient(updated)
       setEditing(false)
     } finally {
@@ -223,8 +223,10 @@ export default function PatientDetailPage() {
                     required
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    placeholder="5491112345678"
                     className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                   />
+                  <p className="text-xs text-slate-400 mt-1">Con código de país, sin + (ej: 5491112345678)</p>
                 </div>
               </div>
               <div>

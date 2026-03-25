@@ -16,7 +16,7 @@ function NewPatientForm({ onCreated }: { onCreated: (p: Patient) => void }) {
     setError(null)
     setLoading(true)
     try {
-      const patient = await patientsApi.create({ name, phone, email, notes })
+      const patient = await patientsApi.create({ name, phone: phone.replace(/^\+/, '').replace(/\s/g, ''), email, notes })
       onCreated(patient)
       setName(''); setPhone(''); setEmail(''); setNotes('')
     } catch {
@@ -47,9 +47,10 @@ function NewPatientForm({ onCreated }: { onCreated: (p: Patient) => void }) {
             required
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            placeholder="+5491112345678"
+            placeholder="5491112345678"
             className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
           />
+          <p className="text-xs text-slate-400 mt-1">Con código de país, sin + (ej: 5491112345678)</p>
         </div>
       </div>
 
