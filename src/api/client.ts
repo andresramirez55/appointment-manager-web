@@ -76,6 +76,12 @@ export const authApi = {
     api.post<LoginResponse>('/auth/login', data).then((r) => r.data),
   register: (data: RegisterRequest) =>
     api.post<LoginResponse>('/auth/register', data).then((r) => r.data),
+  getProfile: () =>
+    api.get<Professional>('/profile').then((r) => r.data),
+  updateProfile: (data: { name: string; phone: string; specialty: string }) =>
+    api.put<Professional>('/profile', data).then((r) => r.data),
+  updatePassword: (data: { current_password: string; new_password: string }) =>
+    api.put('/profile/password', data).then((r) => r.data),
 }
 
 export const appointmentsApi = {

@@ -37,5 +37,10 @@ export function useAuth() {
     setProfessional(null)
   }, [])
 
-  return { token, professional, loading, error, login, logout }
+  const updateProfessional = useCallback((p: Professional) => {
+    localStorage.setItem('professional', JSON.stringify(p))
+    setProfessional(p)
+  }, [])
+
+  return { token, professional, loading, error, login, logout, updateProfessional }
 }
