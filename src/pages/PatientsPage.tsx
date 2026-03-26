@@ -30,7 +30,7 @@ function NewPatientForm({ onCreated }: { onCreated: (p: Patient) => void }) {
     <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
       <h2 className="text-sm font-semibold text-slate-700">Nuevo paciente</h2>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-medium text-slate-600 mb-1">Nombre *</label>
           <input
@@ -111,10 +111,10 @@ export default function PatientsPage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-4xl">
+      <div className="p-4 md:p-8 max-w-4xl">
         <h1 className="text-xl font-semibold text-slate-800 mb-6">Pacientes</h1>
 
-        <div className="grid grid-cols-[1fr_320px] gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 items-start">
           {/* Lista */}
           <div className="space-y-3">
             <input

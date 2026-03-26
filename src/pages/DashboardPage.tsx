@@ -143,7 +143,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="p-8 flex flex-col" style={{ height: '100vh' }}>
+      <div className="p-4 md:p-8 flex flex-col" style={{ minHeight: 'calc(100vh - 48px)', height: 'calc(100vh - 48px)' }}>
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-semibold text-slate-800">Turnos</h1>
           <button

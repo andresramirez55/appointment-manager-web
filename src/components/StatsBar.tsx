@@ -59,7 +59,7 @@ export default function StatsBar({ appointments }: { appointments: Appointment[]
   const uniquePatients = new Set(appointments.map((a) => a.patient_id)).size
 
   return (
-    <div className="flex gap-3 mb-5">
+    <div className="grid grid-cols-2 md:flex gap-3 mb-5">
       <StatCard
         label="Turnos hoy"
         value={todayScheduled}

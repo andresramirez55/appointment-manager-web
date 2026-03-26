@@ -53,7 +53,7 @@ export default function AvailabilityPage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-2xl">
+      <div className="p-4 md:p-8 max-w-2xl">
         <h1 className="text-xl font-semibold text-slate-800 mb-2">Disponibilidad</h1>
         <p className="text-sm text-slate-500 mb-6">Configurá tus horarios de atención para que los pacientes puedan reservar turnos online.</p>
 
@@ -86,13 +86,12 @@ export default function AvailabilityPage() {
             {slots
               .sort((a, b) => a.day_of_week - b.day_of_week)
               .map((slot) => (
-                <div key={slot.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-                  <div>
-                    <span className="text-sm font-medium text-slate-700">{DAYS[slot.day_of_week]}</span>
-                    <span className="text-sm text-slate-500 ml-3">
-                      {slot.start_time} – {slot.end_time}
-                    </span>
-                    <span className="text-xs text-slate-400 ml-2">· {slot.slot_duration_minutes} min c/turno</span>
+                <div key={slot.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 gap-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-700">{DAYS[slot.day_of_week]}</p>
+                    <p className="text-xs text-slate-500">
+                      {slot.start_time} – {slot.end_time} · {slot.slot_duration_minutes} min c/turno
+                    </p>
                   </div>
                   <button
                     onClick={() => handleDelete(slot.id)}
@@ -111,7 +110,7 @@ export default function AvailabilityPage() {
         <form onSubmit={handleAdd} className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
           <h2 className="text-sm font-semibold text-slate-700">Agregar horario</h2>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">Día</label>
               <select

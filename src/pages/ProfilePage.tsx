@@ -68,7 +68,7 @@ export default function ProfilePage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-xl">
+      <div className="p-4 md:p-8 max-w-xl">
         <h1 className="text-xl font-semibold text-slate-800 mb-6">Mi perfil</h1>
 
         {/* Datos del perfil */}

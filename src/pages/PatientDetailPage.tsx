@@ -171,7 +171,7 @@ export default function PatientDetailPage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-2xl">
+      <div className="p-4 md:p-8 max-w-2xl">
         {/* Header */}
         <button
           onClick={() => navigate('/patients')}
@@ -207,7 +207,7 @@ export default function PatientDetailPage() {
 
           {editing ? (
             <form onSubmit={handleSave} className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-600 mb-1">Nombre</label>
                   <input
