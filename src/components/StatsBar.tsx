@@ -24,7 +24,7 @@ function StatCard({ label, value, sub, color = 'text-slate-800' }: StatCardProps
   return (
     <div className="bg-white rounded-xl border border-slate-200 px-4 py-3 flex-1 min-w-0">
       <p className="text-xs text-slate-500 mb-1">{label}</p>
-      <p className={`text-2xl font-bold ${color}`}>{value}</p>
+      <p className={`text-xl md:text-2xl font-bold ${color}`}>{value}</p>
       {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
     </div>
   )

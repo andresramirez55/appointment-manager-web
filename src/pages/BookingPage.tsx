@@ -131,6 +131,19 @@ export default function BookingPage() {
         )}
       </div>
 
+      {/* Step indicator */}
+      <div className="max-w-lg mx-auto px-4 pt-5 pb-1 flex items-center gap-2">
+        <div className={`flex items-center gap-1.5 text-xs font-medium ${step === 'slots' ? 'text-indigo-600' : 'text-slate-400'}`}>
+          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold ${step === 'slots' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>1</span>
+          Elegí horario
+        </div>
+        <div className="flex-1 h-px bg-slate-200 mx-1" />
+        <div className={`flex items-center gap-1.5 text-xs font-medium ${step === 'form' ? 'text-indigo-600' : 'text-slate-400'}`}>
+          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold ${step === 'form' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>2</span>
+          Tus datos
+        </div>
+      </div>
+
       <div className="max-w-lg mx-auto px-4 py-6">
         {step === 'slots' && (
           <>
@@ -236,10 +249,10 @@ export default function BookingPage() {
                 <input
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="5491112345678"
+                  placeholder="Ej: 5491112345678"
                   className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                 />
-                <p className="text-xs text-slate-400 mt-1">Con código de país, sin + (ej: 5491112345678)</p>
+                <p className="text-xs text-slate-400 mt-1">Incluí el código de Argentina (54) y área sin el 0 ni el 15</p>
               </div>
 
               <div>
