@@ -7,6 +7,7 @@ import PatientDetailPage from './pages/PatientDetailPage'
 import ProfilePage from './pages/ProfilePage'
 import AvailabilityPage from './pages/AvailabilityPage'
 import BookingPage from './pages/BookingPage'
+import CancelPage from './pages/CancelPage'
 import { useAuth } from './hooks/useAuth'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/availability" element={<ProtectedRoute><AvailabilityPage /></ProtectedRoute>} />
         <Route path="/book/:id" element={<BookingPage />} />
+        <Route path="/cancel/:token" element={<CancelPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
