@@ -2,8 +2,9 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import { patientsApi, type Patient } from '../api/client'
+import { useConsultorio } from '../contexts/ConsultorioContext'
 
-function NewPatientForm({ onCreated }: { onCreated: (p: Patient) => void }) {
+function NewPatientForm({ onCreated, consultorioId }: { onCreated: (p: Patient) => void; consultorioId?: number }) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -16,7 +17,7 @@ function NewPatientForm({ onCreated }: { onCreated: (p: Patient) => void }) {
     setError(null)
     setLoading(true)
     try {
-      const patient = await patientsApi.create({ name, phone: phone.replace(/^\+/, '').replace(/\s/g, ''), email, notes })
+      const patient = await patientsApi.create({ name, phone: phone.replace(/^\+/, '').replace(/\s/g, ''), email, notes, consultorio_id: consultorioId })
       onCreated(patient)
       setName(''); setPhone(''); setEmail(''); setNotes('')
     } catch {
@@ -93,15 +94,18 @@ function NewPatientForm({ onCreated }: { onCreated: (p: Patient) => void }) {
 
 export default function PatientsPage() {
   const navigate = useNavigate()
+  const { selected } = useConsultorio()
   const [patients, setPatients] = useState<Patient[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    patientsApi.getAll()
+    if (selected === null) return
+    setLoading(true)
+    patientsApi.getAll(selected?.id)
       .then(setPatients)
       .finally(() => setLoading(false))
-  }, [])
+  }, [selected?.id])
 
   const filtered = patients.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -149,7 +153,7 @@ export default function PatientsPage() {
 
           {/* Formulario */}
           <div className="sticky top-8">
-            <NewPatientForm onCreated={(p) => setPatients((prev) => [p, ...prev])} />
+            <NewPatientForm onCreated={(p) => setPatients((prev) => [p, ...prev])} consultorioId={selected?.id} />
           </div>
         </div>
       </div>

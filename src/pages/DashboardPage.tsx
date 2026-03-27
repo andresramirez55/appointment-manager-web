@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { appointmentsApi, blocksApi } from '../api/client'
+import { useConsultorio } from '../contexts/ConsultorioContext'
 import Layout from '../components/Layout'
 import WeekCalendar from '../components/WeekCalendar'
 import NewAppointmentModal from '../components/NewAppointmentModal'
@@ -10,6 +11,7 @@ import StatsBar from '../components/StatsBar'
 import { type Appointment, type Block } from '../api/client'
 
 export default function DashboardPage() {
+  const { selected } = useConsultorio()
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [blocks, setBlocks] = useState<Block[]>([])
   const [loading, setLoading] = useState(true)
@@ -23,14 +25,16 @@ export default function DashboardPage() {
   const [pendingSlot, setPendingSlot] = useState<{ date: string; time: string } | null>(null)
 
   useEffect(() => {
-    Promise.all([appointmentsApi.getAll(), blocksApi.getAll()])
+    if (selected === null) return
+    setLoading(true)
+    Promise.all([appointmentsApi.getAll(selected?.id), blocksApi.getAll()])
       .then(([appts, blks]) => {
         setAppointments(appts)
         setBlocks(blks)
       })
       .catch(() => setError('No se pudieron cargar los datos'))
       .finally(() => setLoading(false))
-  }, [])
+  }, [selected?.id])
 
   function handleStatusChange(id: number, status: string) {
     setAppointments((prev) =>

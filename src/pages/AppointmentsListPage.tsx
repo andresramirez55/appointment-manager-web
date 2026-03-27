@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import { appointmentsApi, type Appointment } from '../api/client'
+import { useConsultorio } from '../contexts/ConsultorioContext'
 
 const STATUS_LABEL: Record<string, string> = {
   scheduled: 'Programado',
@@ -30,6 +31,7 @@ type StatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled'
 
 export default function AppointmentsListPage() {
   const navigate = useNavigate()
+  const { selected } = useConsultorio()
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -37,12 +39,14 @@ export default function AppointmentsListPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
 
   useEffect(() => {
-    appointmentsApi.getAll()
+    if (selected === null) return
+    setLoading(true)
+    appointmentsApi.getAll(selected?.id)
       .then((data) => setAppointments(data.sort((a, b) =>
         new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()
       )))
       .finally(() => setLoading(false))
-  }, [])
+  }, [selected?.id])
 
   const now = new Date()
 

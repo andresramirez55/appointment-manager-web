@@ -42,12 +42,21 @@ export interface LoginResponse {
   professional: Professional
 }
 
+export interface Consultorio {
+  id: number
+  professional_id: number
+  name: string
+  address: string
+  created_at: string
+}
+
 export interface Patient {
   id: number
   name: string
   phone: string
   email: string
   notes: string
+  consultorio_id: number | null
 }
 
 export interface Appointment {
@@ -87,7 +96,8 @@ export const authApi = {
 }
 
 export const appointmentsApi = {
-  getAll: () => api.get<Appointment[]>('/appointments').then((r) => r.data),
+  getAll: (consultorioId?: number) =>
+    api.get<Appointment[]>(`/appointments${consultorioId ? `?consultorio_id=${consultorioId}` : ''}`).then((r) => r.data),
   create: (data: { patient_id: number; starts_at: string; duration_minutes: number }) =>
     api.post<Appointment>('/appointments', data).then((r) => r.data),
   createRecurring: (data: { patient_id: number; starts_at: string; duration_minutes: number; frequency_weeks: number; occurrences: number }) =>
@@ -106,12 +116,22 @@ export interface SessionNote {
 }
 
 export const patientsApi = {
-  getAll: () => api.get<Patient[]>('/patients').then((r) => r.data),
+  getAll: (consultorioId?: number) =>
+    api.get<Patient[]>(`/patients${consultorioId ? `?consultorio_id=${consultorioId}` : ''}`).then((r) => r.data),
   getById: (id: number) => api.get<Patient>(`/patients/${id}`).then((r) => r.data),
-  create: (data: { name: string; phone: string; email: string; notes: string }) =>
+  create: (data: { name: string; phone: string; email: string; notes: string; consultorio_id?: number }) =>
     api.post<Patient>('/patients', data).then((r) => r.data),
-  update: (id: number, data: { name: string; phone: string; email: string; notes: string }) =>
+  update: (id: number, data: { name: string; phone: string; email: string; notes: string; consultorio_id?: number }) =>
     api.put<Patient>(`/patients/${id}`, data).then((r) => r.data),
+}
+
+export const consultoriosApi = {
+  getAll: () => api.get<Consultorio[]>('/consultorios').then((r) => r.data),
+  create: (data: { name: string; address: string }) =>
+    api.post<Consultorio>('/consultorios', data).then((r) => r.data),
+  update: (id: number, data: { name: string; address: string }) =>
+    api.put<Consultorio>(`/consultorios/${id}`, data).then((r) => r.data),
+  delete: (id: number) => api.delete(`/consultorios/${id}`).then((r) => r.data),
 }
 
 export interface Block {

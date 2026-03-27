@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { useConsultorio } from '../contexts/ConsultorioContext'
 
 const navItems = [
   {
@@ -43,6 +44,7 @@ const navItems = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { professional, logout } = useAuth()
   const navigate = useNavigate()
+  const { consultorios, selected, setSelected } = useConsultorio()
 
   function handleLogout() {
     logout()
@@ -58,6 +60,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <p className="text-xs font-semibold text-indigo-600 uppercase tracking-widest">Consultorio</p>
           {professional && (
             <p className="text-sm font-medium text-slate-700 mt-1 truncate">{professional.name}</p>
+          )}
+          {consultorios.length > 0 && (
+            <div className="mt-2">
+              {consultorios.length === 1 ? (
+                <p className="text-xs text-slate-500 truncate">{selected?.name}</p>
+              ) : (
+                <select
+                  value={selected?.id ?? ''}
+                  onChange={(e) => {
+                    const c = consultorios.find((c) => c.id === Number(e.target.value))
+                    if (c) setSelected(c)
+                  }}
+                  className="w-full text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-400 mt-1"
+                >
+                  {consultorios.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              )}
+            </div>
           )}
         </div>
 
@@ -77,6 +99,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="px-3 py-4 border-t border-slate-100">
+          <NavLink to="/consultorios"
+            className={({ isActive }) =>
+              `flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors mb-1 ${
+                isActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+              }`
+            }
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            Consultorios
+          </NavLink>
           <NavLink to="/profile"
             className={({ isActive }) =>
               `flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors mb-1 ${

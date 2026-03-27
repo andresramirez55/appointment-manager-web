@@ -9,12 +9,14 @@ import AvailabilityPage from './pages/AvailabilityPage'
 import BookingPage from './pages/BookingPage'
 import CancelPage from './pages/CancelPage'
 import AppointmentsListPage from './pages/AppointmentsListPage'
+import ConsultoriosPage from './pages/ConsultoriosPage'
 import { useAuth } from './hooks/useAuth'
+import { ConsultorioProvider } from './contexts/ConsultorioContext'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token } = useAuth()
   if (!token) return <Navigate to="/login" replace />
-  return <>{children}</>
+  return <ConsultorioProvider>{children}</ConsultorioProvider>
 }
 
 export default function App() {
@@ -29,6 +31,7 @@ export default function App() {
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/availability" element={<ProtectedRoute><AvailabilityPage /></ProtectedRoute>} />
         <Route path="/appointments" element={<ProtectedRoute><AppointmentsListPage /></ProtectedRoute>} />
+        <Route path="/consultorios" element={<ProtectedRoute><ConsultoriosPage /></ProtectedRoute>} />
         <Route path="/book/:id" element={<BookingPage />} />
         <Route path="/cancel/:token" element={<CancelPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
