@@ -69,6 +69,12 @@ function AppointmentRow({ appointment }: { appointment: Appointment }) {
           {STATUS_LABEL[appointment.status]}
         </span>
 
+        {appointment.status === 'completed' && (
+          appointment.paid
+            ? <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full capitalize">$ {appointment.payment_method || 'Cobrado'}</span>
+            : <span className="text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">Sin cobrar</span>
+        )}
+
         {appointment.notes && (
           <p className="text-xs text-slate-400 flex-1 truncate">{appointment.notes}</p>
         )}

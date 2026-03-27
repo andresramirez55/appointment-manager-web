@@ -59,6 +59,8 @@ export interface Appointment {
   duration_minutes: number
   status: 'scheduled' | 'completed' | 'cancelled'
   reminder_sent_at: string | null
+  paid: boolean
+  payment_method: string
   notes: string
   created_at: string
 }
@@ -90,7 +92,7 @@ export const appointmentsApi = {
     api.post<Appointment>('/appointments', data).then((r) => r.data),
   createRecurring: (data: { patient_id: number; starts_at: string; duration_minutes: number; frequency_weeks: number; occurrences: number }) =>
     api.post<Appointment[]>('/appointments/recurring', data).then((r) => r.data),
-  update: (id: number, data: { status?: string; notes?: string; starts_at?: string; duration_minutes?: number }) =>
+  update: (id: number, data: { status?: string; notes?: string; starts_at?: string; duration_minutes?: number; paid?: boolean; payment_method?: string }) =>
     api.put(`/appointments/${id}`, data).then((r) => r.data),
   cancel: (id: number) =>
     api.delete(`/appointments/${id}`).then((r) => r.data),

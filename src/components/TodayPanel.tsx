@@ -1,6 +1,11 @@
-import { type Appointment } from '../api/client'
-import { appointmentsApi } from '../api/client'
+import { type Appointment, appointmentsApi } from '../api/client'
 import { useState } from 'react'
+
+const PAYMENT_METHODS = [
+  { value: 'efectivo', label: 'Efectivo' },
+  { value: 'transferencia', label: 'Transferencia' },
+  { value: 'otro', label: 'Otro' },
+]
 
 const PATIENT_COLORS = [
   'border-indigo-400 bg-indigo-50 text-indigo-700',
@@ -22,9 +27,10 @@ function getPatientColor(patientId: number) {
 interface Props {
   appointments: Appointment[]
   onStatusChange: (id: number, status: string) => void
+  onPaymentChange?: (id: number, paid: boolean, method: string) => void
 }
 
-export default function TodayPanel({ appointments, onStatusChange }: Props) {
+export default function TodayPanel({ appointments, onStatusChange, onPaymentChange }: Props) {
   const today = new Date()
   const todayAppts = appointments
     .filter((a) => {
@@ -65,7 +71,7 @@ export default function TodayPanel({ appointments, onStatusChange }: Props) {
           </div>
         )}
         {todayAppts.map((a) => (
-          <AppointmentRow key={a.id} appointment={a} onStatusChange={onStatusChange} />
+          <AppointmentRow key={a.id} appointment={a} onStatusChange={onStatusChange} onPaymentChange={onPaymentChange} />
         ))}
       </div>
     </div>
@@ -75,11 +81,14 @@ export default function TodayPanel({ appointments, onStatusChange }: Props) {
 function AppointmentRow({
   appointment,
   onStatusChange,
+  onPaymentChange,
 }: {
   appointment: Appointment
   onStatusChange: (id: number, status: string) => void
+  onPaymentChange?: (id: number, paid: boolean, method: string) => void
 }) {
   const [loading, setLoading] = useState(false)
+  const [showPayment, setShowPayment] = useState(false)
   const start = new Date(appointment.starts_at)
   const end = new Date(start.getTime() + appointment.duration_minutes * 60000)
   const timeStr = `${start.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} – ${end.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`
@@ -89,6 +98,17 @@ function AppointmentRow({
     try {
       await appointmentsApi.update(appointment.id, { status })
       onStatusChange(appointment.id, status)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handlePayment(method: string) {
+    setLoading(true)
+    try {
+      await appointmentsApi.update(appointment.id, { paid: true, payment_method: method })
+      onPaymentChange?.(appointment.id, true, method)
+      setShowPayment(false)
     } finally {
       setLoading(false)
     }
@@ -110,22 +130,14 @@ function AppointmentRow({
 
         {appointment.status === 'scheduled' && (
           <div className="flex gap-1 shrink-0 mt-0.5">
-            <button
-              disabled={loading}
-              onClick={() => handleAction('completed')}
-              title="Marcar completado"
-              className="p-1 rounded-lg bg-green-100 hover:bg-green-200 text-green-700 transition disabled:opacity-50"
-            >
+            <button disabled={loading} onClick={() => handleAction('completed')} title="Marcar completado"
+              className="p-1 rounded-lg bg-green-100 hover:bg-green-200 text-green-700 transition disabled:opacity-50">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </button>
-            <button
-              disabled={loading}
-              onClick={() => handleAction('cancelled')}
-              title="Cancelar turno"
-              className="p-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition disabled:opacity-50"
-            >
+            <button disabled={loading} onClick={() => handleAction('cancelled')} title="Cancelar turno"
+              className="p-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition disabled:opacity-50">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -134,13 +146,33 @@ function AppointmentRow({
         )}
 
         {appointment.status === 'completed' && (
-          <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full shrink-0">✓</span>
+          appointment.paid ? (
+            <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full shrink-0 capitalize">
+              $ {appointment.payment_method || 'Cobrado'}
+            </span>
+          ) : (
+            <button onClick={() => setShowPayment((v) => !v)}
+              className="text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 px-2 py-0.5 rounded-full shrink-0 transition">
+              $ Cobrar
+            </button>
+          )
         )}
 
         {appointment.status === 'cancelled' && (
           <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">Cancelado</span>
         )}
       </div>
+
+      {showPayment && (
+        <div className="flex gap-1.5 mt-2">
+          {PAYMENT_METHODS.map((m) => (
+            <button key={m.value} disabled={loading} onClick={() => handlePayment(m.value)}
+              className="flex-1 py-1 rounded-lg border border-slate-200 bg-white hover:bg-emerald-50 hover:border-emerald-300 text-xs text-slate-600 hover:text-emerald-700 transition disabled:opacity-50">
+              {m.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -38,6 +38,12 @@ export default function DashboardPage() {
     )
   }
 
+  function handlePaymentChange(id: number, paid: boolean, method: string) {
+    setAppointments((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, paid, payment_method: method } : a))
+    )
+  }
+
   function handleCreated(result: Appointment | Appointment[]) {
     const newOnes = Array.isArray(result) ? result : [result]
     setAppointments((prev) => [...prev, ...newOnes])
@@ -180,7 +186,7 @@ export default function DashboardPage() {
               />
             </div>
             <div className="hidden md:flex flex-col" style={{ height: 'calc(100vh - 140px)' }}>
-              <TodayPanel appointments={appointments} onStatusChange={handleStatusChange} />
+              <TodayPanel appointments={appointments} onStatusChange={handleStatusChange} onPaymentChange={handlePaymentChange} />
             </div>
           </div>
           </>
