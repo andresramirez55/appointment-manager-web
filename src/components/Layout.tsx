@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useConsultorio } from '../contexts/ConsultorioContext'
@@ -45,6 +46,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { professional, logout } = useAuth()
   const navigate = useNavigate()
   const { consultorios, selected, setSelected } = useConsultorio()
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   function handleLogout() {
     logout()
@@ -62,22 +75,39 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <p className="text-sm font-medium text-slate-700 mt-1 truncate">{professional.name}</p>
           )}
           {consultorios.length > 0 && (
-            <div className="mt-2">
+            <div className="mt-2" ref={dropdownRef}>
               {consultorios.length === 1 ? (
                 <p className="text-xs text-slate-500 truncate">{selected?.name}</p>
               ) : (
-                <select
-                  value={selected?.id ?? ''}
-                  onChange={(e) => {
-                    const c = consultorios.find((c) => c.id === Number(e.target.value))
-                    if (c) setSelected(c)
-                  }}
-                  className="w-full text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-400 mt-1"
-                >
-                  {consultorios.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <button
+                    onClick={() => setDropdownOpen((v) => !v)}
+                    className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition text-left"
+                  >
+                    <span className="text-xs font-medium text-slate-700 truncate">{selected?.name ?? '—'}</span>
+                    <svg className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {dropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                      {consultorios.map((c) => (
+                        <button
+                          key={c.id}
+                          onClick={() => { setSelected(c); setDropdownOpen(false) }}
+                          className={`w-full text-left px-3 py-2 text-xs transition ${
+                            selected?.id === c.id
+                              ? 'bg-indigo-50 text-indigo-700 font-semibold'
+                              : 'text-slate-600 hover:bg-slate-50'
+                          }`}
+                        >
+                          {c.name}
+                          {c.address && <span className="block text-slate-400 font-normal truncate">{c.address}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}
